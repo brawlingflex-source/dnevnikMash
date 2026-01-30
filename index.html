@@ -371,6 +371,26 @@
             font-size: 1rem;
         }
 
+        .schedule-day {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .day-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .lesson-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -423,6 +443,10 @@
             display: none;
         }
 
+        .hidden {
+            display: none;
+        }
+
         .mobile-warning {
             display: none;
             background-color: var(--warning-color);
@@ -440,6 +464,10 @@
                 gap: 15px;
             }
             
+            .lesson-row {
+                grid-template-columns: 1fr;
+            }
+            
             .mobile-warning {
                 display: block;
             }
@@ -451,6 +479,27 @@
             background-color: var(--hover-bg);
             border-radius: 8px;
             font-size: 0.9rem;
+        }
+        
+        .schedule-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .schedule-mode-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .schedule-mode-btn.active {
+            background-color: var(--primary-color);
+            color: white;
         }
     </style>
 </head>
@@ -468,7 +517,7 @@
     <div class="main-container">
         <div class="calendar-section">
             <div class="month-header">
-                <div class="month-title" id="currentMonth">Январь 2024</div>
+                <div class="month-title" id="currentMonth">Сентябрь 2024</div>
             </div>
             
             <div class="days-container" id="daysContainer">
@@ -476,7 +525,7 @@
             </div>
             
             <div class="schedule-container">
-                <h3 class="schedule-title">Расписание на <span id="selectedDateText">30 января</span></h3>
+                <h3 class="schedule-title">Расписание на <span id="selectedDateText">25 сентября</span></h3>
                 <div id="scheduleList">
                     <!-- Расписание будет добавлено через JS -->
                 </div>
@@ -522,6 +571,11 @@
     <div class="modal" id="scheduleModal">
         <div class="modal-content">
             <h3 class="modal-title">Составить расписание</h3>
+            <div class="schedule-controls">
+                <button class="schedule-mode-btn active" id="modeAdd">Добавить уроки</button>
+                <button class="schedule-mode-btn" id="modeReplace">Заменить расписание</button>
+                <button class="schedule-mode-btn" id="modeClear">Очистить день</button>
+            </div>
             <div class="form-group">
                 <label class="form-label">Дата начала</label>
                 <input type="date" class="form-input" id="scheduleStartDate">
@@ -612,21 +666,6 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Время урока (опционально)</label>
-                <select class="form-select" id="nTime">
-                    <option value="">-- Не указывать время --</option>
-                    <option value="08:00">08:00</option>
-                    <option value="09:00">09:00</option>
-                    <option value="10:00">10:00</option>
-                    <option value="11:00">11:00</option>
-                    <option value="12:00">12:00</option>
-                    <option value="13:00">13:00</option>
-                    <option value="14:00">14:00</option>
-                    <option value="15:00">15:00</option>
-                </select>
-                <small>Если не выбрать время, Н-ка будет отображаться на все уроки по этому предмету в этот день</small>
-            </div>
-            <div class="form-group">
                 <label class="form-label">Причина</label>
                 <input type="text" class="form-input" id="nReason" placeholder="Причина Н-ки">
             </div>
@@ -672,6 +711,7 @@
         let selectedDate = new Date();
         let clickCount = 0;
         let isDarkTheme = localStorage.getItem('school_theme') === 'dark';
+        let scheduleMode = 'add'; // 'add', 'replace', 'clear'
         
         // DOM элементы
         const daysContainer = document.getElementById('daysContainer');
@@ -851,44 +891,29 @@
         function checkIfLessonHasN(dateKey, subject, time) {
             if (!nData[dateKey]) return false;
             
-            // Проверяем все Н-ки на эту дату
-            for (const nItem of nData[dateKey]) {
-                // Если предмет совпадает
-                if (nItem.subject === subject) {
-                    // Если у Н-ки указано время, проверяем совпадение времени
-                    if (nItem.time && nItem.time !== "") {
-                        if (nItem.time === time) {
-                            return true;
-                        }
-                    } else {
-                        // Если время не указано, Н-ка относится ко всем урокам этого предмета
-                        return true;
-                    }
+            // Проверяем, есть ли Н-ка для этого предмета в этот день
+            // Если указано время, проверяем по времени, иначе только по предмету
+            return nData[dateKey].some(n => {
+                if (n.time) {
+                    return n.subject === subject && n.time === time;
+                } else {
+                    return n.subject === subject;
                 }
-            }
-            
-            return false;
+            });
         }
         
         function getNReason(dateKey, subject, time) {
             if (!nData[dateKey]) return "";
             
-            // Ищем Н-ку для этого урока
-            for (const nItem of nData[dateKey]) {
-                if (nItem.subject === subject) {
-                    // Если у Н-ки указано время, проверяем совпадение
-                    if (nItem.time && nItem.time !== "") {
-                        if (nItem.time === time) {
-                            return nItem.reason || "Не указана";
-                        }
-                    } else {
-                        // Если время не указано, возвращаем причину
-                        return nItem.reason || "Не указана";
-                    }
+            const nItem = nData[dateKey].find(n => {
+                if (n.time) {
+                    return n.subject === subject && n.time === time;
+                } else {
+                    return n.subject === subject;
                 }
-            }
+            });
             
-            return "";
+            return nItem ? nItem.reason : "";
         }
         
         function updateGrades() {
@@ -1030,6 +1055,19 @@
                 adminPanel.style.display = 'none';
             });
             
+            // Режимы составления расписания
+            document.getElementById('modeAdd').addEventListener('click', () => {
+                setScheduleMode('add');
+            });
+            
+            document.getElementById('modeReplace').addEventListener('click', () => {
+                setScheduleMode('replace');
+            });
+            
+            document.getElementById('modeClear').addEventListener('click', () => {
+                setScheduleMode('clear');
+            });
+            
             // Модальное окно расписания
             document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
                 scheduleModal.style.display = 'none';
@@ -1066,38 +1104,74 @@
             document.getElementById('confirmClearBtn').addEventListener('click', clearAllData);
         }
         
+        function setScheduleMode(mode) {
+            scheduleMode = mode;
+            
+            // Обновляем кнопки
+            document.getElementById('modeAdd').classList.remove('active');
+            document.getElementById('modeReplace').classList.remove('active');
+            document.getElementById('modeClear').classList.remove('active');
+            document.getElementById(`mode${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add('active');
+            
+            // Меняем текст кнопки применения
+            const applyBtn = document.getElementById('applyScheduleBtn');
+            if (mode === 'add') {
+                applyBtn.textContent = 'Добавить уроки';
+            } else if (mode === 'replace') {
+                applyBtn.textContent = 'Заменить расписание';
+            } else if (mode === 'clear') {
+                applyBtn.textContent = 'Очистить выбранные дни';
+            }
+        }
+        
         function openScheduleModal() {
-            // Устанавливаем сегодняшнюю дату по умолчанию
-            const today = new Date();
-            document.getElementById('scheduleStartDate').value = formatDateInput(today);
+            // Устанавливаем выбранную дату по умолчанию
+            document.getElementById('scheduleStartDate').value = formatDateInput(selectedDate);
+            
+            // Сбрасываем режим на "Добавить уроки"
+            setScheduleMode('add');
             
             // Генерируем поля для 7 дней
             const scheduleDaysContainer = document.getElementById('scheduleDays');
             scheduleDaysContainer.innerHTML = '';
             
             for (let i = 0; i < 7; i++) {
-                const dayDate = new Date(today);
-                dayDate.setDate(today.getDate() + i);
+                const dayDate = new Date(selectedDate);
+                dayDate.setDate(selectedDate.getDate() + i);
                 
                 const dayElement = document.createElement('div');
                 dayElement.className = 'schedule-day';
                 
+                const dateKey = formatDate(dayDate);
+                const existingSchedule = scheduleData[dateKey] || [];
+                
                 let dayHTML = `
                     <div class="day-header">${formatDisplayDate(dayDate)}</div>
+                    ${existingSchedule.length > 0 ? 
+                      `<div style="font-size: 0.9rem; color: var(--success-color); margin-bottom: 10px;">
+                        Уже есть ${existingSchedule.length} урок(ов)
+                      </div>` : ''}
                 `;
                 
                 // Добавляем поля для каждого урока
                 for (let j = 0; j < lessonTimes.length; j++) {
+                    // Проверяем, есть ли уже урок в это время
+                    const existingLesson = existingSchedule.find(lesson => lesson.time === lessonTimes[j]);
+                    
                     dayHTML += `
                         <div class="lesson-row">
                             <select class="form-select lesson-subject-select" data-day="${i}" data-lesson="${j}">
                                 <option value="">-- Выберите предмет --</option>
-                                ${subjects.map(subject => `<option value="${subject}">${subject}</option>`).join('')}
+                                ${subjects.map(subject => 
+                                    `<option value="${subject}" ${existingLesson && existingLesson.subject === subject ? 'selected' : ''}>
+                                        ${subject} ${existingLesson && existingLesson.subject === subject ? '(уже есть)' : ''}
+                                    </option>`
+                                ).join('')}
                             </select>
                             <input type="text" class="form-input lesson-time-input" value="${lessonTimes[j]}" data-day="${i}" data-lesson="${j}" readonly>
                             <select class="form-select lesson-format-select" data-day="${i}" data-lesson="${j}">
-                                <option value="оффлайн">Очный</option>
-                                <option value="онлайн">Дистанционный</option>
+                                <option value="оффлайн" ${existingLesson && existingLesson.format === 'оффлайн' ? 'selected' : ''}>Очный</option>
+                                <option value="онлайн" ${existingLesson && existingLesson.format === 'онлайн' ? 'selected' : ''}>Дистанционный</option>
                             </select>
                         </div>
                     `;
@@ -1113,14 +1187,27 @@
         function applySchedule() {
             const startDate = new Date(document.getElementById('scheduleStartDate').value);
             
-            // Очищаем старое расписание для этих дат
             for (let i = 0; i < 7; i++) {
                 const currentDate = new Date(startDate);
                 currentDate.setDate(startDate.getDate() + i);
                 const dateKey = formatDate(currentDate);
                 
-                // Инициализируем массив для этой даты
-                scheduleData[dateKey] = [];
+                // В зависимости от режима
+                if (scheduleMode === 'clear') {
+                    // Очищаем расписание на этот день
+                    delete scheduleData[dateKey];
+                    continue;
+                }
+                
+                // Инициализируем или получаем существующее расписание
+                if (!scheduleData[dateKey]) {
+                    scheduleData[dateKey] = [];
+                }
+                
+                // Если режим "заменить", очищаем существующее расписание
+                if (scheduleMode === 'replace') {
+                    scheduleData[dateKey] = [];
+                }
                 
                 // Собираем уроки для этого дня
                 for (let j = 0; j < lessonTimes.length; j++) {
@@ -1131,11 +1218,32 @@
                     const format = formatSelect.value;
                     
                     if (subject) {
-                        scheduleData[dateKey].push({
-                            time: lessonTimes[j],
-                            subject: subject,
-                            format: format
-                        });
+                        // Проверяем, есть ли уже урок в это время (для режима "добавить")
+                        if (scheduleMode === 'add') {
+                            const existingIndex = scheduleData[dateKey].findIndex(lesson => lesson.time === lessonTimes[j]);
+                            if (existingIndex >= 0) {
+                                // Заменяем существующий урок
+                                scheduleData[dateKey][existingIndex] = {
+                                    time: lessonTimes[j],
+                                    subject: subject,
+                                    format: format
+                                };
+                            } else {
+                                // Добавляем новый урок
+                                scheduleData[dateKey].push({
+                                    time: lessonTimes[j],
+                                    subject: subject,
+                                    format: format
+                                });
+                            }
+                        } else {
+                            // Для режима "заменить" просто добавляем
+                            scheduleData[dateKey].push({
+                                time: lessonTimes[j],
+                                subject: subject,
+                                format: format
+                            });
+                        }
                     }
                 }
             }
@@ -1145,9 +1253,10 @@
             
             // Закрываем модальное окно и обновляем отображение
             scheduleModal.style.display = 'none';
+            generateDays(); // Обновляем отображение дней
             updateDisplay();
             
-            alert('Расписание успешно составлено!');
+            alert('Расписание успешно обновлено!');
         }
         
         function openGradeModal() {
@@ -1272,9 +1381,6 @@
             const date = document.getElementById('nDate').value;
             const subject = document.getElementById('nSubject').value;
             const reason = document.getElementById('nReason').value;
-            const time = document.getElementById('nTime').value;
-            
-            console.log('Добавляем Н-ку:', { date, subject, reason, time });
             
             if (!date || !subject) {
                 alert('Пожалуйста, выберите дату и предмет');
@@ -1286,14 +1392,10 @@
                 nData[date] = [];
             }
             
-            // Сохраняем Н-ку
             nData[date].push({
                 subject: subject,
-                reason: reason || 'Не указана',
-                time: time || '' // Сохраняем время или пустую строку
+                reason: reason || 'Не указана'
             });
-            
-            console.log('Н-ки после добавления:', nData[date]);
             
             // Сохраняем в localStorage
             localStorage.setItem('school_n', JSON.stringify(nData));
@@ -1324,6 +1426,7 @@
             
             // Закрываем модальное окно и обновляем отображение
             clearModal.style.display = 'none';
+            generateDays();
             updateDisplay();
             
             alert('Все данные успешно очищены!');
