@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школа МЭШ - Кудрявцев Изумрудик</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #ff006e;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-bg: #f0f0f0;
+            --success-color: #06d6a0;
+            --warning-color: #ffd166;
+            --danger-color: #ef476f;
+        }
+
+        .dark-theme {
+            --bg-color: #121212;
+            --text-color: #f5f5f5;
+            --primary-color: #7b68ee;
+            --secondary-color: #9370db;
+            --accent-color: #ff6b6b;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --hover-bg: #2a2a2a;
+            --success-color: #06d6a0;
+            --warning-color: #ffd166;
+            --danger-color: #ef476f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .user-class {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+        }
+
+        .theme-switcher {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .calendar-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .month-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .days-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .day-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            min-width: 70px;
+        }
+
+        .day-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .day-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .day-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .day-name {
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .schedule-container {
+            margin-top: 20px;
+        }
+
+        .schedule-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .lesson-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: var(--hover-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+        }
+
+        .lesson-item.has-n {
+            border-left: 4px solid var(--danger-color);
+            background-color: rgba(239, 71, 111, 0.1);
+        }
+
+        .lesson-time {
+            font-weight: bold;
+            color: var(--secondary-color);
+            min-width: 80px;
+        }
+
+        .lesson-subject {
+            flex-grow: 1;
+            margin: 0 15px;
+        }
+
+        .lesson-subject.with-n {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .lesson-format {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .online {
+            background-color: #e1f5fe;
+            color: #0277bd;
+        }
+
+        .offline {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .n-indicator {
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            padding: 2px 8px;
+            background-color: rgba(239, 71, 111, 0.2);
+            border-radius: 10px;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grade-item, .hw-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .grade-item:last-child, .hw-item:last-child {
+            border-bottom: none;
+        }
+
+        .average-grade {
+            font-weight: bold;
+            color: var(--success-color);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .admin-content {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .admin-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .admin-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .admin-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .admin-btn:hover {
+            opacity: 0.9;
+        }
+
+        .admin-btn.danger {
+            background-color: var(--danger-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .schedule-day {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .day-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .lesson-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn.secondary {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .click-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
+            z-index: 999;
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .mobile-warning {
+            display: none;
+            background-color: var(--warning-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .lesson-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-warning {
+                display: block;
+            }
+        }
+
+        .subject-stats {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--hover-bg);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-warning">Для лучшего отображения поверните устройство в горизонтальную ориентацию</div>
+    
+    <div class="header">
+        <div class="user-info">
+            <div class="user-name">Кудрявцев Изумрудик</div>
+            <div class="user-class">7 Г класс</div>
+        </div>
+        <button class="theme-switcher" id="themeSwitcher">Тёмная тема</button>
+    </div>
+
+    <div class="main-container">
+        <div class="calendar-section">
+            <div class="month-header">
+                <div class="month-title" id="currentMonth">Сентябрь 2024</div>
+            </div>
+            
+            <div class="days-container" id="daysContainer">
+                <!-- Дни будут добавлены через JS -->
+            </div>
+            
+            <div class="schedule-container">
+                <h3 class="schedule-title">Расписание на <span id="selectedDateText">25 сентября</span></h3>
+                <div id="scheduleList">
+                    <!-- Расписание будет добавлено через JS -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-card">
+                <h3 class="info-title">Оценки <span id="gradeCount">(0)</span></h3>
+                <div id="gradesList">
+                    <div class="empty-state">Нет оценок</div>
+                </div>
+                <div id="gradeStats" class="subject-stats"></div>
+            </div>
+            
+            <div class="info-card">
+                <h3 class="info-title">Домашнее задание <span id="hwCount">(0)</span></h3>
+                <div id="homeworkList">
+                    <div class="empty-state">Нет домашнего задания</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="click-counter" id="clickCounter">0</div>
+    
+    <!-- Админ-панель -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-content">
+            <h2 class="admin-title">Административная панель</h2>
+            <div class="admin-buttons">
+                <button class="admin-btn" id="scheduleBtn">Составить расписание</button>
+                <button class="admin-btn" id="gradeBtn">Добавить оценку</button>
+                <button class="admin-btn" id="homeworkBtn">Добавить ДЗ</button>
+                <button class="admin-btn" id="nBtn">Добавить Н-ку</button>
+                <button class="admin-btn danger" id="clearBtn">Очистить данные</button>
+            </div>
+            <button class="btn secondary" id="closeAdminBtn">Закрыть панель</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно расписания -->
+    <div class="modal" id="scheduleModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Составить расписание на 7 дней</h3>
+            <div class="form-group">
+                <label class="form-label">Дата начала</label>
+                <input type="date" class="form-input" id="scheduleStartDate">
+            </div>
+            
+            <div id="scheduleDays">
+                <!-- Дни расписания будут добавлены через JS -->
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn secondary" id="cancelScheduleBtn">Отмена</button>
+                <button class="btn primary" id="applyScheduleBtn">Применить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно оценки -->
+    <div class="modal" id="gradeModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Добавить оценку</h3>
+            <div class="form-group">
+                <label class="form-label">Дата</label>
+                <input type="date" class="form-input" id="gradeDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Предмет</label>
+                <select class="form-select" id="gradeSubject">
+                    <!-- Предметы будут добавлены через JS -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Оценка</label>
+                <select class="form-select" id="gradeValue">
+                    <option value="5">5 (Отлично)</option>
+                    <option value="4">4 (Хорошо)</option>
+                    <option value="3">3 (Удовлетворительно)</option>
+                    <option value="2">2 (Неудовлетворительно)</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn secondary" id="cancelGradeBtn">Отмена</button>
+                <button class="btn primary" id="applyGradeBtn">Добавить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно домашнего задания -->
+    <div class="modal" id="homeworkModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Добавить домашнее задание</h3>
+            <div class="form-group">
+                <label class="form-label">Дата задания</label>
+                <input type="date" class="form-input" id="homeworkDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Предмет</label>
+                <select class="form-select" id="homeworkSubject">
+                    <!-- Предметы будут добавлены через JS -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Задание</label>
+                <textarea class="form-input" id="homeworkTask" rows="3" placeholder="Описание задания"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Срок выполнения</label>
+                <input type="date" class="form-input" id="homeworkDeadline">
+            </div>
+            <div class="form-actions">
+                <button class="btn secondary" id="cancelHomeworkBtn">Отмена</button>
+                <button class="btn primary" id="applyHomeworkBtn">Добавить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно Н-ки -->
+    <div class="modal" id="nModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Добавить Н-ку</h3>
+            <div class="form-group">
+                <label class="form-label">Дата</label>
+                <input type="date" class="form-input" id="nDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Предмет</label>
+                <select class="form-select" id="nSubject">
+                    <!-- Предметы будут добавлены через JS -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Причина</label>
+                <input type="text" class="form-input" id="nReason" placeholder="Причина Н-ки">
+            </div>
+            <div class="form-actions">
+                <button class="btn secondary" id="cancelNBtn">Отмена</button>
+                <button class="btn primary" id="applyNBtn">Добавить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно подтверждения очистки -->
+    <div class="modal" id="clearModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Очистить все данные</h3>
+            <p>Вы уверены, что хотите удалить все данные (расписание, оценки, ДЗ, Н-ки)? Это действие нельзя отменить.</p>
+            <div class="form-actions">
+                <button class="btn secondary" id="cancelClearBtn">Отмена</button>
+                <button class="btn danger" id="confirmClearBtn">Очистить всё</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные приложения
+        const subjects = [
+            "Математика", "Химия", "Музыка", "Русский язык", "Литература", 
+            "Биология", "География", "Право", "Обществознание", "История", 
+            "Физкультура", "Физика", "Разговоры о важном", "Астрономия", 
+            "Английский язык", "Информатика", "ОБЖ", "Естествознание", 
+            "Индивидуальный проект", "Психология"
+        ];
+        
+        const lessonTimes = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"];
+        
+        // Инициализация данных из localStorage или создание пустых
+        let scheduleData = JSON.parse(localStorage.getItem('school_schedule')) || {};
+        let gradesData = JSON.parse(localStorage.getItem('school_grades')) || {};
+        let homeworkData = JSON.parse(localStorage.getItem('school_homework')) || {};
+        let nData = JSON.parse(localStorage.getItem('school_n')) || {};
+        
+        // Текущая дата и выбранная дата
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let clickCount = 0;
+        let isDarkTheme = localStorage.getItem('school_theme') === 'dark';
+        
+        // DOM элементы
+        const daysContainer = document.getElementById('daysContainer');
+        const scheduleList = document.getElementById('scheduleList');
+        const gradesList = document.getElementById('gradesList');
+        const homeworkList = document.getElementById('homeworkList');
+        const adminPanel = document.getElementById('adminPanel');
+        const clickCounter = document.getElementById('clickCounter');
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        
+        // Модальные окна
+        const scheduleModal = document.getElementById('scheduleModal');
+        const gradeModal = document.getElementById('gradeModal');
+        const homeworkModal = document.getElementById('homeworkModal');
+        const nModal = document.getElementById('nModal');
+        const clearModal = document.getElementById('clearModal');
+        
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            generateDays();
+            updateDisplay();
+            setupEventListeners();
+            
+            // Инициализация счетчика кликов
+            document.body.addEventListener('click', function(e) {
+                // Проверяем, что клик в центре экрана
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const clickX = e.clientX;
+                const clickY = e.clientY;
+                
+                // Центральная область (40% от центра)
+                const centerX = viewportWidth / 2;
+                const centerY = viewportHeight / 2;
+                const areaWidth = viewportWidth * 0.4;
+                const areaHeight = viewportHeight * 0.4;
+                
+                if (clickX > centerX - areaWidth/2 && clickX < centerX + areaWidth/2 &&
+                    clickY > centerY - areaHeight/2 && clickY < centerY + areaHeight/2) {
+                    
+                    clickCount++;
+                    clickCounter.textContent = clickCount;
+                    clickCounter.style.display = 'flex';
+                    
+                    // Скрываем счетчик через 1.5 секунды
+                    setTimeout(() => {
+                        clickCounter.style.display = 'none';
+                    }, 1500);
+                    
+                    // Если 3 клика, показываем админ-панель
+                    if (clickCount >= 3) {
+                        adminPanel.style.display = 'flex';
+                        clickCount = 0;
+                        clickCounter.style.display = 'none';
+                    }
+                }
+            });
+        });
+        
+        function initTheme() {
+            if (isDarkTheme) {
+                document.body.classList.add('dark-theme');
+                themeSwitcher.textContent = 'Светлая тема';
+            } else {
+                document.body.classList.remove('dark-theme');
+                themeSwitcher.textContent = 'Тёмная тема';
+            }
+        }
+        
+        function generateDays() {
+            daysContainer.innerHTML = '';
+            
+            // Определяем текущий месяц и год
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+            const dayNames = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+            
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Генерируем 7 дней, начиная с текущего
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(currentDate);
+                date.setDate(currentDate.getDate() + i);
+                
+                const dayItem = document.createElement('div');
+                dayItem.className = 'day-item';
+                if (i === 0) dayItem.classList.add('active');
+                
+                dayItem.innerHTML = `
+                    <div class="day-number">${date.getDate()}</div>
+                    <div class="day-name">${dayNames[date.getDay()]}</div>
+                `;
+                
+                dayItem.addEventListener('click', () => {
+                    // Убираем активный класс у всех дней
+                    document.querySelectorAll('.day-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Добавляем активный класс выбранному дню
+                    dayItem.classList.add('active');
+                    
+                    // Устанавливаем выбранную дату
+                    selectedDate = new Date(date);
+                    updateDisplay();
+                });
+                
+                daysContainer.appendChild(dayItem);
+            }
+        }
+        
+        function updateDisplay() {
+            updateSelectedDateText();
+            updateSchedule();
+            updateGrades();
+            updateHomework();
+            updateCounters();
+        }
+        
+        function updateSelectedDateText() {
+            const day = selectedDate.getDate();
+            const monthNames = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"];
+            const month = monthNames[selectedDate.getMonth()];
+            document.getElementById('selectedDateText').textContent = `${day} ${month}`;
+        }
+        
+        function updateSchedule() {
+            const dateKey = formatDate(selectedDate);
+            const schedule = scheduleData[dateKey] || [];
+            
+            scheduleList.innerHTML = '';
+            
+            if (schedule.length === 0) {
+                scheduleList.innerHTML = '<div class="empty-state">На этот день нет расписания</div>';
+                return;
+            }
+            
+            // Сортируем занятия по времени
+            schedule.sort((a, b) => a.time.localeCompare(b.time));
+            
+            schedule.forEach(lesson => {
+                const lessonItem = document.createElement('div');
+                lessonItem.className = 'lesson-item';
+                
+                // Проверяем, есть ли Н-ка для этого урока
+                const hasN = checkIfLessonHasN(dateKey, lesson.subject, lesson.time);
+                
+                if (hasN) {
+                    lessonItem.classList.add('has-n');
+                }
+                
+                const nReason = getNReason(dateKey, lesson.subject, lesson.time);
+                
+                lessonItem.innerHTML = `
+                    <div class="lesson-time">${lesson.time}</div>
+                    <div class="lesson-subject ${hasN ? 'with-n' : ''}">
+                        ${lesson.subject}
+                        ${hasN ? `<span class="n-indicator">Н: ${nReason}</span>` : ''}
+                    </div>
+                    <div class="lesson-format ${lesson.format === 'онлайн' ? 'online' : 'offline'}">
+                        ${lesson.format === 'онлайн' ? 'Дистанционный' : 'Очный'}
+                    </div>
+                `;
+                
+                scheduleList.appendChild(lessonItem);
+            });
+        }
+        
+        function checkIfLessonHasN(dateKey, subject, time) {
+            if (!nData[dateKey]) return false;
+            
+            // Проверяем, есть ли Н-ка для этого предмета в этот день
+            // Если указано время, проверяем по времени, иначе только по предмету
+            return nData[dateKey].some(n => {
+                if (n.time) {
+                    return n.subject === subject && n.time === time;
+                } else {
+                    return n.subject === subject;
+                }
+            });
+        }
+        
+        function getNReason(dateKey, subject, time) {
+            if (!nData[dateKey]) return "";
+            
+            const nItem = nData[dateKey].find(n => {
+                if (n.time) {
+                    return n.subject === subject && n.time === time;
+                } else {
+                    return n.subject === subject;
+                }
+            });
+            
+            return nItem ? nItem.reason : "";
+        }
+        
+        function updateGrades() {
+            const dateKey = formatDate(selectedDate);
+            const grades = gradesData[dateKey] || [];
+            
+            gradesList.innerHTML = '';
+            
+            if (grades.length === 0) {
+                gradesList.innerHTML = '<div class="empty-state">Нет оценок</div>';
+            } else {
+                grades.forEach(grade => {
+                    const gradeItem = document.createElement('div');
+                    gradeItem.className = 'grade-item';
+                    gradeItem.innerHTML = `
+                        <span>${grade.subject}</span>
+                        <span>${grade.value}</span>
+                    `;
+                    gradesList.appendChild(gradeItem);
+                });
+            }
+            
+            // Обновляем статистику оценок
+            updateGradeStats();
+        }
+        
+        function updateGradeStats() {
+            const statsElement = document.getElementById('gradeStats');
+            const allGrades = Object.values(gradesData).flat();
+            
+            if (allGrades.length === 0) {
+                statsElement.innerHTML = '';
+                return;
+            }
+            
+            // Группируем оценки по предметам
+            const subjectStats = {};
+            allGrades.forEach(grade => {
+                if (!subjectStats[grade.subject]) {
+                    subjectStats[grade.subject] = {
+                        count: 0,
+                        sum: 0,
+                        average: 0
+                    };
+                }
+                
+                subjectStats[grade.subject].count++;
+                subjectStats[grade.subject].sum += parseInt(grade.value);
+                subjectStats[grade.subject].average = subjectStats[grade.subject].sum / subjectStats[grade.subject].count;
+            });
+            
+            // Формируем HTML для статистики
+            let statsHTML = '<strong>Средние баллы:</strong><br>';
+            for (const subject in subjectStats) {
+                statsHTML += `${subject}: ${subjectStats[subject].average.toFixed(2)} (${subjectStats[subject].count} оценок)<br>`;
+            }
+            
+            statsElement.innerHTML = statsHTML;
+        }
+        
+        function updateHomework() {
+            const dateKey = formatDate(selectedDate);
+            const homework = homeworkData[dateKey] || [];
+            
+            homeworkList.innerHTML = '';
+            
+            if (homework.length === 0) {
+                homeworkList.innerHTML = '<div class="empty-state">Нет домашнего задания</div>';
+            } else {
+                homework.forEach(hw => {
+                    const hwItem = document.createElement('div');
+                    hwItem.className = 'hw-item';
+                    
+                    const deadlineDate = new Date(hw.deadline);
+                    const today = new Date();
+                    const isOverdue = deadlineDate < today && deadlineDate.toDateString() !== today.toDateString();
+                    
+                    hwItem.innerHTML = `
+                        <div>
+                            <strong>${hw.subject}</strong><br>
+                            <small>${hw.task}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <small>Срок: ${formatDisplayDate(new Date(hw.deadline))}</small>
+                            ${isOverdue ? '<br><small style="color: red;">Просрочено!</small>' : ''}
+                        </div>
+                    `;
+                    
+                    homeworkList.appendChild(hwItem);
+                });
+            }
+        }
+        
+        function updateCounters() {
+            // Общее количество оценок
+            const totalGrades = Object.values(gradesData).flat().length;
+            document.getElementById('gradeCount').textContent = `(${totalGrades})`;
+            
+            // Общее количество ДЗ
+            const totalHomework = Object.values(homeworkData).flat().length;
+            document.getElementById('hwCount').textContent = `(${totalHomework})`;
+        }
+        
+        function setupEventListeners() {
+            // Переключение темы
+            themeSwitcher.addEventListener('click', function() {
+                isDarkTheme = !isDarkTheme;
+                localStorage.setItem('school_theme', isDarkTheme ? 'dark' : 'light');
+                initTheme();
+            });
+            
+            // Кнопки админ-панели
+            document.getElementById('scheduleBtn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+                openScheduleModal();
+            });
+            
+            document.getElementById('gradeBtn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+                openGradeModal();
+            });
+            
+            document.getElementById('homeworkBtn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+                openHomeworkModal();
+            });
+            
+            document.getElementById('nBtn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+                openNModal();
+            });
+            
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+                openClearModal();
+            });
+            
+            document.getElementById('closeAdminBtn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+            });
+            
+            // Модальное окно расписания
+            document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+                scheduleModal.style.display = 'none';
+            });
+            
+            document.getElementById('applyScheduleBtn').addEventListener('click', applySchedule);
+            
+            // Модальное окно оценки
+            document.getElementById('cancelGradeBtn').addEventListener('click', () => {
+                gradeModal.style.display = 'none';
+            });
+            
+            document.getElementById('applyGradeBtn').addEventListener('click', applyGrade);
+            
+            // Модальное окно домашнего задания
+            document.getElementById('cancelHomeworkBtn').addEventListener('click', () => {
+                homeworkModal.style.display = 'none';
+            });
+            
+            document.getElementById('applyHomeworkBtn').addEventListener('click', applyHomework);
+            
+            // Модальное окно Н-ки
+            document.getElementById('cancelNBtn').addEventListener('click', () => {
+                nModal.style.display = 'none';
+            });
+            
+            document.getElementById('applyNBtn').addEventListener('click', applyN);
+            
+            // Модальное окно очистки
+            document.getElementById('cancelClearBtn').addEventListener('click', () => {
+                clearModal.style.display = 'none';
+            });
+            
+            document.getElementById('confirmClearBtn').addEventListener('click', clearAllData);
+        }
+        
+        function openScheduleModal() {
+            // Устанавливаем сегодняшнюю дату по умолчанию
+            const today = new Date();
+            document.getElementById('scheduleStartDate').value = formatDateInput(today);
+            
+            // Генерируем поля для 7 дней
+            const scheduleDaysContainer = document.getElementById('scheduleDays');
+            scheduleDaysContainer.innerHTML = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(today);
+                dayDate.setDate(today.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'schedule-day';
+                
+                let dayHTML = `
+                    <div class="day-header">${formatDisplayDate(dayDate)}</div>
+                `;
+                
+                // Добавляем поля для каждого урока
+                for (let j = 0; j < lessonTimes.length; j++) {
+                    dayHTML += `
+                        <div class="lesson-row">
+                            <select class="form-select lesson-subject-select" data-day="${i}" data-lesson="${j}">
+                                <option value="">-- Выберите предмет --</option>
+                                ${subjects.map(subject => `<option value="${subject}">${subject}</option>`).join('')}
+                            </select>
+                            <input type="text" class="form-input lesson-time-input" value="${lessonTimes[j]}" data-day="${i}" data-lesson="${j}" readonly>
+                            <select class="form-select lesson-format-select" data-day="${i}" data-lesson="${j}">
+                                <option value="оффлайн">Очный</option>
+                                <option value="онлайн">Дистанционный</option>
+                            </select>
+                        </div>
+                    `;
+                }
+                
+                dayElement.innerHTML = dayHTML;
+                scheduleDaysContainer.appendChild(dayElement);
+            }
+            
+            scheduleModal.style.display = 'flex';
+        }
+        
+        function applySchedule() {
+            const startDate = new Date(document.getElementById('scheduleStartDate').value);
+            
+            // Очищаем старое расписание для этих дат
+            for (let i = 0; i < 7; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                const dateKey = formatDate(currentDate);
+                
+                // Инициализируем массив для этой даты
+                scheduleData[dateKey] = [];
+                
+                // Собираем уроки для этого дня
+                for (let j = 0; j < lessonTimes.length; j++) {
+                    const subjectSelect = document.querySelector(`.lesson-subject-select[data-day="${i}"][data-lesson="${j}"]`);
+                    const formatSelect = document.querySelector(`.lesson-format-select[data-day="${i}"][data-lesson="${j}"]`);
+                    
+                    const subject = subjectSelect.value;
+                    const format = formatSelect.value;
+                    
+                    if (subject) {
+                        scheduleData[dateKey].push({
+                            time: lessonTimes[j],
+                            subject: subject,
+                            format: format
+                        });
+                    }
+                }
+            }
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('school_schedule', JSON.stringify(scheduleData));
+            
+            // Закрываем модальное окно и обновляем отображение
+            scheduleModal.style.display = 'none';
+            updateDisplay();
+            
+            alert('Расписание успешно составлено!');
+        }
+        
+        function openGradeModal() {
+            // Устанавливаем выбранную дату по умолчанию
+            document.getElementById('gradeDate').value = formatDateInput(selectedDate);
+            
+            // Заполняем список предметов
+            const subjectSelect = document.getElementById('gradeSubject');
+            subjectSelect.innerHTML = '<option value="">-- Выберите предмет --</option>';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
+            });
+            
+            gradeModal.style.display = 'flex';
+        }
+        
+        function applyGrade() {
+            const date = document.getElementById('gradeDate').value;
+            const subject = document.getElementById('gradeSubject').value;
+            const value = document.getElementById('gradeValue').value;
+            
+            if (!date || !subject) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            // Добавляем оценку
+            if (!gradesData[date]) {
+                gradesData[date] = [];
+            }
+            
+            gradesData[date].push({
+                subject: subject,
+                value: value
+            });
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('school_grades', JSON.stringify(gradesData));
+            
+            // Закрываем модальное окно и обновляем отображение
+            gradeModal.style.display = 'none';
+            updateDisplay();
+            
+            alert('Оценка успешно добавлена!');
+        }
+        
+        function openHomeworkModal() {
+            // Устанавливаем выбранную дату по умолчанию
+            document.getElementById('homeworkDate').value = formatDateInput(selectedDate);
+            
+            // Устанавливаем дедлайн на завтра по умолчанию
+            const tomorrow = new Date(selectedDate);
+            tomorrow.setDate(selectedDate.getDate() + 1);
+            document.getElementById('homeworkDeadline').value = formatDateInput(tomorrow);
+            
+            // Заполняем список предметов
+            const subjectSelect = document.getElementById('homeworkSubject');
+            subjectSelect.innerHTML = '<option value="">-- Выберите предмет --</option>';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
+            });
+            
+            homeworkModal.style.display = 'flex';
+        }
+        
+        function applyHomework() {
+            const date = document.getElementById('homeworkDate').value;
+            const subject = document.getElementById('homeworkSubject').value;
+            const task = document.getElementById('homeworkTask').value;
+            const deadline = document.getElementById('homeworkDeadline').value;
+            
+            if (!date || !subject || !task || !deadline) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            // Добавляем домашнее задание
+            if (!homeworkData[date]) {
+                homeworkData[date] = [];
+            }
+            
+            homeworkData[date].push({
+                subject: subject,
+                task: task,
+                deadline: deadline
+            });
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('school_homework', JSON.stringify(homeworkData));
+            
+            // Закрываем модальное окно и обновляем отображение
+            homeworkModal.style.display = 'none';
+            updateDisplay();
+            
+            alert('Домашнее задание успешно добавлено!');
+        }
+        
+        function openNModal() {
+            // Устанавливаем выбранную дату по умолчанию
+            document.getElementById('nDate').value = formatDateInput(selectedDate);
+            
+            // Заполняем список предметов
+            const subjectSelect = document.getElementById('nSubject');
+            subjectSelect.innerHTML = '<option value="">-- Выберите предмет --</option>';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
+            });
+            
+            // Добавляем выбор времени, если есть расписание на выбранную дату
+            const dateKey = formatDateInput(selectedDate);
+            const scheduleForDate = scheduleData[dateKey] || [];
+            
+            const timeSelectContainer = document.createElement('div');
+            timeSelectContainer.className = 'form-group';
+            timeSelectContainer.innerHTML = `
+                <label class="form-label">Время урока (опционально)</label>
+                <select class="form-select" id="nTime">
+                    <option value="">-- Любое время --</option>
+                    ${scheduleForDate.map(lesson => `<option value="${lesson.time}">${lesson.time} - ${lesson.subject}</option>`).join('')}
+                </select>
+                <small>Если не выбрать время, Н-ка будет отображаться на все уроки по этому предмету в этот день</small>
+            `;
+            
+            // Вставляем выбор времени после выбора предмета
+            const nSubjectElement = document.getElementById('nSubject');
+            nSubjectElement.parentNode.insertBefore(timeSelectContainer, nSubjectElement.nextSibling);
+            
+            nModal.style.display = 'flex';
+        }
+        
+        function applyN() {
+            const date = document.getElementById('nDate').value;
+            const subject = document.getElementById('nSubject').value;
+            const reason = document.getElementById('nReason').value;
+            const timeElement = document.getElementById('nTime');
+            const time = timeElement ? timeElement.value : '';
+            
+            if (!date || !subject) {
+                alert('Пожалуйста, выберите дату и предмет');
+                return;
+            }
+            
+            // Добавляем Н-ку
+            if (!nData[date]) {
+                nData[date] = [];
+            }
+            
+            nData[date].push({
+                subject: subject,
+                reason: reason || '',
+                time: time || undefined
+            });
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('school_n', JSON.stringify(nData));
+            
+            // Закрываем модальное окно и обновляем отображение
+            nModal.style.display = 'none';
+            updateDisplay();
+            
+            alert('Н-ка успешно добавлена!');
+        }
+        
+        function openClearModal() {
+            clearModal.style.display = 'flex';
+        }
+        
+        function clearAllData() {
+            // Очищаем все данные
+            scheduleData = {};
+            gradesData = {};
+            homeworkData = {};
+            nData = {};
+            
+            // Очищаем localStorage
+            localStorage.removeItem('school_schedule');
+            localStorage.removeItem('school_grades');
+            localStorage.removeItem('school_homework');
+            localStorage.removeItem('school_n');
+            
+            // Закрываем модальное окно и обновляем отображение
+            clearModal.style.display = 'none';
+            updateDisplay();
+            
+            alert('Все данные успешно очищены!');
+        }
+        
+        // Вспомогательные функции для работы с датами
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+        
+        function formatDateInput(date) {
+            return formatDate(date);
+        }
+        
+        function formatDisplayDate(date) {
+            const day = date.getDate();
+            const monthNames = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"];
+            const month = monthNames[date.getMonth()];
+            const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+            const dayName = dayNames[date.getDay()];
+            
+            return `${day} ${month}, ${dayName}`;
+        }
+    </script>
+</body>
+</html>
