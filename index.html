@@ -371,26 +371,6 @@
             font-size: 1rem;
         }
 
-        .schedule-day {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-        }
-
-        .day-header {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--secondary-color);
-        }
-
-        .lesson-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -443,10 +423,6 @@
             display: none;
         }
 
-        .hidden {
-            display: none;
-        }
-
         .mobile-warning {
             display: none;
             background-color: var(--warning-color);
@@ -462,10 +438,6 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
-            }
-            
-            .lesson-row {
-                grid-template-columns: 1fr;
             }
             
             .mobile-warning {
@@ -517,7 +489,7 @@
     <div class="main-container">
         <div class="calendar-section">
             <div class="month-header">
-                <div class="month-title" id="currentMonth">Сентябрь 2024</div>
+                <div class="month-title" id="currentMonth">Январь 2024</div>
             </div>
             
             <div class="days-container" id="daysContainer">
@@ -525,7 +497,7 @@
             </div>
             
             <div class="schedule-container">
-                <h3 class="schedule-title">Расписание на <span id="selectedDateText">25 сентября</span></h3>
+                <h3 class="schedule-title">Расписание на <span id="selectedDateText">30 января</span></h3>
                 <div id="scheduleList">
                     <!-- Расписание будет добавлено через JS -->
                 </div>
@@ -664,6 +636,21 @@
                 <select class="form-select" id="nSubject">
                     <!-- Предметы будут добавлены через JS -->
                 </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Время урока (если известно)</label>
+                <select class="form-select" id="nTime">
+                    <option value="">-- Выберите время --</option>
+                    <option value="08:00">08:00</option>
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                </select>
+                <small>Если не выбрать время, Н-ка будет отображаться на все уроки по этому предмету в этот день</small>
             </div>
             <div class="form-group">
                 <label class="form-label">Причина</label>
@@ -892,11 +879,12 @@
             if (!nData[dateKey]) return false;
             
             // Проверяем, есть ли Н-ка для этого предмета в этот день
-            // Если указано время, проверяем по времени, иначе только по предмету
             return nData[dateKey].some(n => {
+                // Если у Н-ки указано время, проверяем совпадение времени
                 if (n.time) {
                     return n.subject === subject && n.time === time;
                 } else {
+                    // Если время не указано, Н-ка относится ко всем урокам этого предмета
                     return n.subject === subject;
                 }
             });
@@ -905,6 +893,7 @@
         function getNReason(dateKey, subject, time) {
             if (!nData[dateKey]) return "";
             
+            // Ищем Н-ку для этого предмета и времени
             const nItem = nData[dateKey].find(n => {
                 if (n.time) {
                     return n.subject === subject && n.time === time;
@@ -1374,6 +1363,16 @@
                 subjectSelect.appendChild(option);
             });
             
+            // Заполняем список времен
+            const timeSelect = document.getElementById('nTime');
+            timeSelect.innerHTML = '<option value="">-- Выберите время --</option>';
+            lessonTimes.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time;
+                timeSelect.appendChild(option);
+            });
+            
             nModal.style.display = 'flex';
         }
         
@@ -1381,6 +1380,7 @@
             const date = document.getElementById('nDate').value;
             const subject = document.getElementById('nSubject').value;
             const reason = document.getElementById('nReason').value;
+            const time = document.getElementById('nTime').value;
             
             if (!date || !subject) {
                 alert('Пожалуйста, выберите дату и предмет');
@@ -1394,7 +1394,8 @@
             
             nData[date].push({
                 subject: subject,
-                reason: reason || 'Не указана'
+                reason: reason || 'Не указана',
+                time: time || null // Сохраняем время или null если не выбрано
             });
             
             // Сохраняем в localStorage
